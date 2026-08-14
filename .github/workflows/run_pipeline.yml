@@ -23,7 +23,12 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Write Google service account key to file
-        run: echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > service_account.json
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: printf '%s' "$GOOGLE_SERVICE_ACCOUNT_JSON" > service_account.json
+
+      - name: Validate service account file is real JSON
+        run: python -c "import json; json.load(open('service_account.json')); print('service_account.json is valid JSON')"
 
       - name: Run pipeline
         env:
