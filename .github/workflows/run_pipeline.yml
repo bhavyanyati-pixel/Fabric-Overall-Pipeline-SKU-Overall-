@@ -1,0 +1,33 @@
+name: Fabric Overall Pipeline
+
+on:
+  schedule:
+    # 3:30 UTC = 9:00 AM IST (India Standard Time, UTC+5:30)
+    - cron: "30 3 * * *"
+  workflow_dispatch: {}   # lets you also click "Run workflow" manually on GitHub
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write Google service account key to file
+        run: echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > service_account.json
+
+      - name: Run pipeline
+        env:
+          SERVICE_ACCOUNT_JSON_PATH: service_account.json
+          GMAIL_EMAIL: ${{ secrets.GMAIL_EMAIL }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python Fabric_Overall_Pipeline.py
