@@ -162,8 +162,11 @@ def _clean_cell(cell):
 def load_gmail_credentials_from_env():
     """Read Gmail email + app password from environment variables (GitHub
     Secrets), instead of a local CSV file."""
-    email_addr = os.environ.get(GMAIL_EMAIL_ENV, "").strip()
-    password = os.environ.get(GMAIL_APP_PASSWORD_ENV, "").strip()
+    email_addr = _clean_cell(os.environ.get(GMAIL_EMAIL_ENV, ""))
+    password = _clean_cell(os.environ.get(GMAIL_APP_PASSWORD_ENV, ""))
+    # Gmail app passwords are often displayed/copied as "abcd efgh ijkl mnop"
+    # with spaces for readability, but must be used with the spaces removed.
+    password = password.replace(" ", "")
 
     if not email_addr or not password:
         raise ValueError(
